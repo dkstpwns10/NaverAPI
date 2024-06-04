@@ -16,7 +16,7 @@ class MainViewModel : ViewModel() {
     private val _streamSimpleState = mutableStateOf(StreamSimpleState())
     val streamSimpleState : State<StreamSimpleState> = _streamSimpleState
 
-    
+
     init {
         fetchStreamSimple()
         fetchStreamDetail()
