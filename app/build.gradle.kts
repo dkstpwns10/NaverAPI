@@ -51,7 +51,6 @@ android {
 
 dependencies {
     implementation("com.navercorp.nid:oauth:5.9.1") // jdk 11
-    implementation("com.navercorp.nid:oauth-jdk8:5.9.1") // jdk 8
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2")
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
