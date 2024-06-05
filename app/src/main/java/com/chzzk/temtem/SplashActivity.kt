@@ -50,34 +50,36 @@ class SplashActivity : ComponentActivity() {
 
     @Composable
     private fun SplashScreen(modifier: Modifier=Modifier,onTimeOut:()->Unit) {
-//        var isLoading by remember { mutableStateOf(true) }
-//        val alpha = remember {
-//            Animatable(0f)
-//        }
+
+        var isLoading by remember { mutableStateOf(true) }
+        val alpha = remember {
+            Animatable(0f)
+        }
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.White),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Spacer(modifier = Modifier.size(250.dp))
+            Image(
+                painter = painterResource(id = R.drawable.logo),
+                contentDescription = null,
+                modifier = Modifier.size(200.dp)
+            )
+        }
+        Box(modifier = Modifier.fillMaxSize(),contentAlignment = Alignment.BottomCenter) {
+            Text(text = "© 2024 Lurker. All rights reserved.\n",fontSize = 12.sp)
+            Spacer(modifier = Modifier.size(0.5.dp))
+            Text(text = "Developed by Lurker.",fontSize = 12.sp)
+        }
         LaunchedEffect(Unit) {
-            //alpha.animateTo(1f, animationSpec = tween(1500))
-            delay(3000)  // 3초 동안 스플래시 화면 표시
-            //isLoading = false
+            alpha.animateTo(1f, animationSpec = tween(1500))
+            delay(2000)
+            isLoading = false
             onTimeOut()
         }
-//        Column(
-//            modifier = Modifier
-//                .fillMaxSize()
-//                .background(Color.White),
-//            horizontalAlignment = Alignment.CenterHorizontally
-//        ) {
-//            Spacer(modifier = Modifier.size(250.dp))
-//            Image(
-//                painter = painterResource(id = R.drawable.logo),
-//                contentDescription = null,
-//                modifier = Modifier.size(200.dp)
-//            )
-//        }
-//        Box(modifier = Modifier.fillMaxSize(),contentAlignment = Alignment.BottomCenter) {
-//            Text(text = "© 2024 Lurker. All rights reserved.\n",fontSize = 12.sp)
-//            Spacer(modifier = Modifier.size(0.5.dp))
-//            Text(text = "Developed by Lurker.",fontSize = 12.sp)
-//        }
     }
 }
 

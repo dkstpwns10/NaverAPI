@@ -3,8 +3,5 @@
     <item>
         <color android:color="@color/white"/>
     </item>
-    <item>
-        <bitmap android:src="@drawable/logo"
-                android:gravity="center"></bitmap>
-    </item>
+
 </selector>
