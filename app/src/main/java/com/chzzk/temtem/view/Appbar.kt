@@ -1,9 +1,6 @@
 package com.chzzk.temtem.view
 
 import android.annotation.SuppressLint
-import android.graphics.Paint.Align
-import android.provider.CalendarContract
-import android.widget.ImageButton
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -24,7 +21,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -55,15 +51,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
-import coil.compose.rememberImagePainter
-import coil.size.Size
-import com.chzzk.temtem.BuildConfig
 import com.chzzk.temtem.R
-import com.chzzk.temtem.service.MainViewModel
 import com.chzzk.temtem.service.NaverLogin
-import com.navercorp.nid.NaverIdLoginSDK
 import kotlinx.coroutines.launch
 
 @SuppressLint("RememberReturnType")
@@ -112,8 +102,6 @@ fun topAppBar() {
                         .height(200.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
                             if (!isLoggedIn) {
                                 IconButton(modifier = Modifier.size(200.dp,400.dp), onClick = {
-
-                                    naver.authenticate()
                                     //isLoggedIn = true
                                 }
 
@@ -232,7 +220,7 @@ fun topAppBar() {
                         val currnetScreen = remember{
                             mutableStateOf("Main")
                         }
-
+                        MainScreen(appbarColor.value,drawerColor.value)
 
                     }
                 }

@@ -2,6 +2,8 @@ package com.chzzk.temtem.api
 
 import com.chzzk.temtem.domain.StreamDetail
 import com.chzzk.temtem.domain.StreamSimple
+import com.chzzk.temtem.domain.User
+import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
@@ -18,4 +20,7 @@ interface ApiService{
 
     @GET("a7e175625fdea5a7d98428302b7aa57f/live-detail")
     suspend fun getDetailStream():StreamDetail
+
+    @GET("login/naver")
+    fun loginWithNaver(): Call<User>?
 }
