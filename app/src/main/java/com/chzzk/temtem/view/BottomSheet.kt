@@ -60,6 +60,7 @@ import coil.compose.rememberAsyncImagePainter
 import com.chzzk.temtem.R
 import com.chzzk.temtem.domain.DetailContent
 import com.chzzk.temtem.service.MainViewModel
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.time.Duration
@@ -70,10 +71,10 @@ import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
-fun BottomSheet_StreamView(viewModel: MainViewModel, bottomSheetState: BottomSheetScaffoldState) {
+fun BottomSheet_StreamView(viewModel: MainViewModel, bottomSheetState: BottomSheetScaffoldState,scope:CoroutineScope) {
     val streamDetail by viewModel.streamDetailState
     var detailContent: DetailContent? = streamDetail.data
-    val scope = rememberCoroutineScope()
+
     val fontColor = remember {
         mutableStateOf(Color(115, 68, 64))
     }
@@ -311,13 +312,13 @@ fun StreamContent(detailContent: DetailContent?, onHideButtonClick: () -> Unit) 
                                 val close = detailContent.closeDate
                                 val live_time : List<String> = live_Open_Close(open,close)
                                 Column(horizontalAlignment = Alignment.CenterHorizontally,verticalArrangement = Arrangement.Center, modifier = Modifier.padding(4.dp).width(100.dp)) {
-                                    Text(text = "뱅온시간", fontWeight = FontWeight.Bold, fontSize = 10.sp)
+                                    Text(text = "dwdw", fontWeight = FontWeight.Bold, fontSize = 10.sp)
                                     Text(text = live_time.get(0), fontWeight = FontWeight.Bold, fontSize = 15.sp, modifier = Modifier.padding(4.dp))
                                     Text(text = live_time.get(1), fontWeight = FontWeight.Bold, fontSize = 15.sp, modifier = Modifier.padding(4.dp))
                                 }
                                 VerticalDivider(modifier = Modifier.height(50.dp).padding(4.dp), color = Color.Black)
                                 Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center, modifier = Modifier.padding(4.dp).width(100.dp)) {
-                                    Text(text = "뱅종시간", fontWeight = FontWeight.Bold, fontSize = 10.sp)
+                                    Text(text = "dwdwdawd", fontWeight = FontWeight.Bold, fontSize = 10.sp)
                                     Text(text = live_time.get(2), fontWeight = FontWeight.Bold, fontSize = 15.sp, modifier = Modifier.padding(4.dp))
                                     Text(text = live_time.get(3), fontWeight = FontWeight.Bold, fontSize = 15.sp, modifier = Modifier.padding(4.dp))
                                 }
@@ -382,7 +383,7 @@ fun live_Open_Close(live_open:String?,live_close:String?) : List<String>{
 @Preview
 @Composable
 fun StreamContentPreview() {
-    val streamViewModel: MainViewModel = viewModel()
-    val scaffoldState = rememberBottomSheetScaffoldState()
-    BottomSheet_StreamView(viewModel = streamViewModel, scaffoldState)
+//    val streamViewModel: MainViewModel = viewModel()
+//    val scaffoldState = rememberBottomSheetScaffoldState()
+//    BottomSheet_StreamView(viewModel = streamViewModel, scaffoldState,scope)
 }

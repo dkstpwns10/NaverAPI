@@ -56,13 +56,13 @@ import coil.compose.rememberAsyncImagePainter
 import com.chzzk.temtem.R
 import com.chzzk.temtem.service.MainViewModel
 import com.chzzk.temtem.service.NaverLogin
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @SuppressLint("RememberReturnType")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun topAppBar() {
-    val streamViewModel: MainViewModel = viewModel()
+fun topAppBar(viewModel:MainViewModel,scope:CoroutineScope) {
     val context = LocalContext.current
     val appbarColor = remember {
         mutableStateOf(Color.White)
@@ -81,6 +81,7 @@ fun topAppBar() {
     var profileImageUrl by remember {
         mutableStateOf<Int?>(null)
     }
+
     val naver = remember { NaverLogin(context) }
 
     // 메뉴창
@@ -247,7 +248,7 @@ fun topAppBar() {
                         val currnetScreen = remember {
                             mutableStateOf("Main")
                         }
-                        MainScreen(appbarColor = appbarColor.value, drawerColor = drawerColor.value)
+                        MainScreen(appbarColor = appbarColor.value, drawerColor = drawerColor.value,scope)
 
                     }
                 }
@@ -259,5 +260,5 @@ fun topAppBar() {
 @Composable
 @Preview
 fun PreviewAppBar() {
-    topAppBar()
+
 }

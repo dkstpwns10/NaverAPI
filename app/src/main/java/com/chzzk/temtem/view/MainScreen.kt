@@ -40,20 +40,20 @@ import com.chzzk.temtem.service.MainViewModel
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
+import kotlinx.coroutines.CoroutineScope
 
 @OptIn(ExperimentalPagerApi::class, ExperimentalMaterialApi::class)
 @Composable
-fun MainScreen(appbarColor: Color, drawerColor: Color) {
+fun MainScreen(appbarColor: Color, drawerColor: Color,scope : CoroutineScope) {
     val streamViewModel: MainViewModel = viewModel()
     val pagerState = rememberPagerState()
-    val scope = rememberCoroutineScope()
     val scaffoldState = rememberBottomSheetScaffoldState()
 
     BottomSheetScaffold(
         scaffoldState = scaffoldState,
         sheetPeekHeight = 150.dp, // The height when the sheet is collapsed
         sheetContent = {
-            BottomSheet_StreamView(streamViewModel, scaffoldState)
+            BottomSheet_StreamView(streamViewModel, scaffoldState,scope)
         },
         sheetBackgroundColor = Color.White
     ) {
@@ -179,9 +179,9 @@ fun VerticalDivider(
             .background(color)
     )
 }
-
-@Preview
-@Composable
-fun MainScreenPreview() {
-    MainScreen(Color.White, Color.Black)
-}
+//
+//@Preview
+//@Composable
+//fun MainScreenPreview() {
+//    MainScreen(Color.White, Color.Black)
+//}
