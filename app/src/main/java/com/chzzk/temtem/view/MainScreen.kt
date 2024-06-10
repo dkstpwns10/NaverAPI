@@ -45,9 +45,6 @@ import com.google.accompanist.pager.rememberPagerState
 @Composable
 fun MainScreen(appbarColor: Color, drawerColor: Color) {
     val streamViewModel: MainViewModel = viewModel()
-    val viewDetailState by streamViewModel.streamDetailState
-    val viewSimpleState by streamViewModel.streamSimpleState
-    var now_Streaming by remember { mutableStateOf(false) }
     val pagerState = rememberPagerState()
     val scope = rememberCoroutineScope()
     val scaffoldState = rememberBottomSheetScaffoldState()
