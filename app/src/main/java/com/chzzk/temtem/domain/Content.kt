@@ -1,5 +1,8 @@
 package com.chzzk.temtem.domain
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class DetailContent(
     val liveId : Int,
     val liveTitle : String,
@@ -26,14 +29,14 @@ data class DetailContent(
     val channel : Channel,
     val chatDonationRankingExposure : Boolean
 )
-
+@Serializable
 data class Channel(
     val channel: String,
     val channelName : String,
     val channelImageUrl : String,
     val verifiedMark : Boolean
 )
-
+@Serializable
 data class SimpleContent(
     val channelId : String,
     val channelName : String,

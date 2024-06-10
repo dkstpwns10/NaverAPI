@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Settings
@@ -29,7 +30,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
@@ -51,8 +51,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.chzzk.temtem.R
+import com.chzzk.temtem.service.MainViewModel
 import com.chzzk.temtem.service.NaverLogin
 import kotlinx.coroutines.launch
 
@@ -60,6 +62,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun topAppBar() {
+    val streamViewModel: MainViewModel = viewModel()
     val context = LocalContext.current
     val appbarColor = remember {
         mutableStateOf(Color.White)
@@ -72,13 +75,13 @@ fun topAppBar() {
     }
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
-    var isLoggedIn by remember{
+    var isLoggedIn by remember {
         mutableStateOf(false)
     }
     var profileImageUrl by remember {
         mutableStateOf<Int?>(null)
     }
-    val naver = remember{NaverLogin(context)}
+    val naver = remember { NaverLogin(context) }
 
     // 메뉴창
 
@@ -97,65 +100,87 @@ fun topAppBar() {
                     verticalArrangement = Arrangement.Center
                 ) {
                     Spacer(modifier = Modifier.size(30.dp))
-                    Row(modifier = Modifier
-                        .fillMaxWidth()
-                        .height(200.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
-                            if (!isLoggedIn) {
-                                IconButton(modifier = Modifier.size(200.dp,400.dp), onClick = {
-                                    //isLoggedIn = true
-                                }
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(200.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        if (!isLoggedIn) {
+                            IconButton(modifier = Modifier.size(200.dp, 400.dp), onClick = {
+                                //isLoggedIn = true
+                            }
 
-                                ) {
-                                    Image(painter = painterResource(id = R.drawable.btn_complete),modifier=Modifier.size(200.dp,400.dp), contentScale = ContentScale.FillWidth,contentDescription = "로그인 버튼")
-                                }
-                            }else{
-                                Box(
-                                    modifier = Modifier
-                                        .padding(start = 20.dp)
-                                        .size(130.dp)
-                                        .clip(CircleShape)
-                                        .background(Color.White)
-                                        .clickable {
-                                            // 프로필 이미지 추가 로직 지금은 예시
-                                            profileImageUrl = R.drawable.image_channel
-                                        },
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    if (profileImageUrl == null) {
-                                        Text(text = "+", fontSize = 24.sp, fontWeight = FontWeight.Bold)
-                                    } else {
-                                        Image(
-                                            painter = rememberAsyncImagePainter(model = profileImageUrl),
-                                            contentDescription = "Profile Image",
-                                            contentScale = ContentScale.Crop,
-                                            modifier = Modifier.size(80.dp),
-                                        )
-                                    }
-                                }
-                                Column {
-                                    Text(text = "곽철용", fontWeight = FontWeight.Bold, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
-                                    Spacer(modifier = Modifier.size(8.dp))
-                                    Text(text = "naevr@naver.com", fontSize = 12.sp,textAlign = TextAlign.Center,modifier = Modifier.fillMaxWidth())
+                            ) {
+                                Image(
+                                    painter = painterResource(id = R.drawable.btn_complete),
+                                    modifier = Modifier.size(200.dp, 400.dp),
+                                    contentScale = ContentScale.FillWidth,
+                                    contentDescription = "로그인 버튼"
+                                )
+                            }
+                        } else {
+                            Box(
+                                modifier = Modifier
+                                    .padding(start = 20.dp)
+                                    .size(130.dp)
+                                    .clip(CircleShape)
+                                    .background(Color.White)
+                                    .clickable {
+                                        // 프로필 이미지 추가 로직 지금은 예시
+                                        profileImageUrl = R.drawable.image_channel
+                                    },
+                                contentAlignment = Alignment.Center
+                            ) {
+                                if (profileImageUrl == null) {
+                                    Text(text = "+", fontSize = 24.sp, fontWeight = FontWeight.Bold)
+                                } else {
+                                    Image(
+                                        painter = rememberAsyncImagePainter(model = profileImageUrl),
+                                        contentDescription = "Profile Image",
+                                        contentScale = ContentScale.Crop,
+                                        modifier = Modifier.size(80.dp),
+                                    )
                                 }
                             }
+                            Column {
+                                Text(
+                                    text = "곽철용",
+                                    fontWeight = FontWeight.Bold,
+                                    textAlign = TextAlign.Center,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                                Spacer(modifier = Modifier.size(8.dp))
+                                Text(
+                                    text = "naevr@naver.com",
+                                    fontSize = 12.sp,
+                                    textAlign = TextAlign.Center,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            }
+                        }
                     }
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Divider(modifier = Modifier.width(300.dp), thickness = 2.dp)
                         Spacer(modifier = Modifier.size(50.dp))
-                        Text(text = "공지 사항", fontSize = 20.sp,modifier = Modifier.padding(16.dp))
+                        Text(text = "공지 사항", fontSize = 20.sp, modifier = Modifier.padding(16.dp))
                         Divider(modifier = Modifier.width(150.dp), thickness = 2.dp)
-                        Text(text = "탬알림", fontSize = 20.sp,modifier = Modifier.padding(16.dp))
+                        Text(text = "탬알림", fontSize = 20.sp, modifier = Modifier.padding(16.dp))
                         Divider(modifier = Modifier.width(150.dp), thickness = 2.dp)
-                        Text(text = "탬위터", fontSize = 20.sp,modifier = Modifier.padding(16.dp))
+                        Text(text = "탬위터", fontSize = 20.sp, modifier = Modifier.padding(16.dp))
                         Divider(modifier = Modifier.width(150.dp), thickness = 2.dp)
-                        Text(text = "게시글 작성", fontSize = 20.sp,modifier = Modifier.padding(16.dp))
+                        Text(text = "게시글 작성", fontSize = 20.sp, modifier = Modifier.padding(16.dp))
 
                     }
 
-                    Box(modifier = Modifier.fillMaxSize(),contentAlignment = Alignment.BottomCenter) {
-                        Text(text = "© 2024 Lurker. All rights reserved.\n",fontSize = 12.sp)
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.BottomCenter
+                    ) {
+                        Text(text = "© 2024 Lurker. All rights reserved.\n", fontSize = 12.sp)
                         Spacer(modifier = Modifier.size(0.5.dp))
-                        Text(text = "Developed by Lurker.",fontSize = 12.sp)
+                        Text(text = "Developed by Lurker.", fontSize = 12.sp)
                     }
 
 
@@ -174,10 +199,12 @@ fun topAppBar() {
                                     .wrapContentSize(Alignment.Center)
                             ) {
                                 Image(
-                                    modifier = Modifier.size(100.dp).clickable(onClick = {
-                                    //로고 클릭시 메인 스크린으로 이동
-                                    /*TODO*/
-                                    }),
+                                    modifier = Modifier
+                                        .size(100.dp)
+                                        .clickable(onClick = {
+                                            //로고 클릭시 메인 스크린으로 이동
+                                            /*TODO*/
+                                        }),
                                     painter = painterResource(id = R.drawable.appbar),
                                     contentDescription = "",
                                     contentScale = ContentScale.FillHeight
@@ -217,10 +244,10 @@ fun topAppBar() {
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         // Main content goes here]
-                        val currnetScreen = remember{
+                        val currnetScreen = remember {
                             mutableStateOf("Main")
                         }
-                        MainScreen(appbarColor.value,drawerColor.value)
+                        MainScreen(appbarColor = appbarColor.value, drawerColor = drawerColor.value)
 
                     }
                 }
