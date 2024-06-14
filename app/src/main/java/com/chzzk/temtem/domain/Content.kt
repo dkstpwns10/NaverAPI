@@ -30,6 +30,29 @@ data class DetailContent(
     val chatDonationRankingExposure : Boolean
 )
 @Serializable
+data class StatusContent(
+    val liveTitle: String,
+    val status: String,
+    val concurrentUserCount: Int,
+    val accumulateCount: Int,
+    val paidPromotion: Boolean,
+    val adult: Boolean,
+    val clipActive: Boolean,
+    val chatChannelId: String,
+    val tags: List<String>,
+    val categoryType: String,
+    val liveCategory: String,
+    val liveCategoryValue: String,
+    val livePollingStatusJson: String,
+    val faultStatus: String?,
+    val userAdultStatus: String?,
+    val chatActive: Boolean,
+    val chatAvailableGroup: String,
+    val chatAvailableCondition: String,
+    val minFollowerMinute: Int,
+    val chatDonationRankingExposure: Boolean
+)
+@Serializable
 data class Channel(
     val channel: String,
     val channelName : String,

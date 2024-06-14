@@ -11,12 +11,12 @@ data class StreamDetail(
     val message : String,
     val content : DetailContent
 
-) {
-    suspend fun enqueue(callback: Callback<StreamDetail>) {
-        val call: StreamDetail = RetrofitClient.create().getDetailStream()
-        call.enqueue(callback)
-    }
-}
+)
+data class StreamStatus(
+    val code : Int,
+    val message : String,
+    val content : StatusContent
+)
 
 data class StreamSimple(
     val code : Int,

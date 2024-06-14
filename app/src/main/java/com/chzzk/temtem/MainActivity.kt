@@ -1,5 +1,6 @@
 package com.chzzk.temtem
 
+import android.app.Application
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -25,12 +26,11 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     val streamViewmodel =  viewModel<MainViewModel>()
-                    streamViewmodel.getStreamDetail()
                     val scope = rememberCoroutineScope()
-                    LaunchedEffect(Unit) {
-                        streamViewmodel.getStreamData(scope)
+                    LaunchedEffect(Unit){
+                        streamViewmodel.fetchLiveStatus()
                     }
-                    topAppBar(streamViewmodel,scope)
+                    topAppBar(streamViewmodel)
                 }
             }
         }

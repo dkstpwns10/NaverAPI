@@ -1,6 +1,8 @@
 package com.chzzk.temtem.view
 
 import android.annotation.SuppressLint
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -22,6 +24,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -53,16 +56,19 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
+import com.chzzk.temtem.BuildConfig
 import com.chzzk.temtem.R
 import com.chzzk.temtem.service.MainViewModel
 import com.chzzk.temtem.service.NaverLogin
+import com.navercorp.nid.NaverIdLoginSDK
+import com.navercorp.nid.oauth.view.NidOAuthLoginButton.Companion.launcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @SuppressLint("RememberReturnType")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun topAppBar(viewModel:MainViewModel,scope:CoroutineScope) {
+fun topAppBar(viewModel: MainViewModel) {
     val context = LocalContext.current
     val appbarColor = remember {
         mutableStateOf(Color.White)
@@ -83,7 +89,9 @@ fun topAppBar(viewModel:MainViewModel,scope:CoroutineScope) {
     }
 
     val naver = remember { NaverLogin(context) }
-
+    val CLIENT_ID = "nbSpQmZ0YhNH_K94ocI3"
+    val CLIENT_SECRET = "AIasWmhkiu"
+    val REDIRECT_URI = "http://172.30.1.42:5000/callback"
     // 메뉴창
 
     ModalNavigationDrawer(
@@ -109,18 +117,14 @@ fun topAppBar(viewModel:MainViewModel,scope:CoroutineScope) {
                         horizontalArrangement = Arrangement.Center
                     ) {
                         if (!isLoggedIn) {
-                            IconButton(modifier = Modifier.size(200.dp, 400.dp), onClick = {
-                                //isLoggedIn = true
+                            Button(onClick = {
+                                val naverLoginUrl = "https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&state=STATE"
+                                //파이썬 서버로 연결-> 로그인 -> 콜백값 반환
+
+                            }) {
+                                Text(text = "네이버로그인")
                             }
 
-                            ) {
-                                Image(
-                                    painter = painterResource(id = R.drawable.btn_complete),
-                                    modifier = Modifier.size(200.dp, 400.dp),
-                                    contentScale = ContentScale.FillWidth,
-                                    contentDescription = "로그인 버튼"
-                                )
-                            }
                         } else {
                             Box(
                                 modifier = Modifier
@@ -248,7 +252,7 @@ fun topAppBar(viewModel:MainViewModel,scope:CoroutineScope) {
                         val currnetScreen = remember {
                             mutableStateOf("Main")
                         }
-                        MainScreen(appbarColor = appbarColor.value, drawerColor = drawerColor.value,scope)
+                        MainScreen(appbarColor = appbarColor.value, drawerColor = drawerColor.value)
 
                     }
                 }
