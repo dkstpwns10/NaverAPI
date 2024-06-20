@@ -8,7 +8,7 @@ import retrofit2.Callback
 
 data class StreamDetail(
     val code : Int,
-    val message : String,
+    val message : String?,
     val content : DetailContent
 
 )

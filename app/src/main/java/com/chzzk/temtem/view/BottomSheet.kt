@@ -2,6 +2,7 @@ package com.chzzk.temtem.view
 
 import android.content.Intent
 import android.net.Uri
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -24,18 +25,15 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.BottomSheetScaffoldState
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.ListItem
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material.rememberBottomSheetScaffoldState
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -43,7 +41,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -51,14 +48,11 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.chzzk.temtem.R
-import com.chzzk.temtem.domain.DetailContent
 import com.chzzk.temtem.domain.StatusContent
 import com.chzzk.temtem.service.MainViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -67,14 +61,12 @@ import java.text.SimpleDateFormat
 import java.time.Duration
 import java.time.LocalDateTime
 import java.time.ZoneId
-import java.util.Date
 
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
-fun BottomSheet_StreamView(viewModel: MainViewModel, bottomSheetState: BottomSheetScaffoldState) {
+fun BottomSheet_StreamView(viewModel: MainViewModel, bottomSheetState: BottomSheetScaffoldState,scope: CoroutineScope) {
     val streamStatus by viewModel.streamStatusState
-    val scope = rememberCoroutineScope()
     var detailContent: StatusContent? = streamStatus.data
 
     val fontColor = remember {
@@ -111,6 +103,12 @@ fun BottomSheet_StreamView(viewModel: MainViewModel, bottomSheetState: BottomShe
         liveIcon.value = R.drawable.off
         bottomImage.value = R.drawable.sq_round
     }
+
+    BackHandler(enabled = bottomSheetState.bottomSheetState.isExpanded) {
+        scope.launch {
+            bottomSheetState.bottomSheetState.collapse()
+        }
+    }
     Surface(
         shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
         elevation = 20.dp
@@ -127,7 +125,8 @@ fun BottomSheet_StreamView(viewModel: MainViewModel, bottomSheetState: BottomShe
                     .padding(vertical = 8.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                BottomSheetDefaults.DragHandle()
+
+                BottomSheetDefaults.DragHandle(modifier = Modifier.width(100.dp))
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -173,7 +172,7 @@ fun BottomSheet_StreamView(viewModel: MainViewModel, bottomSheetState: BottomShe
 @Composable
 fun StreamContent(detailContent: StatusContent?, onHideButtonClick: () -> Unit) {
     val bottomInsets = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
-    val liveTitle = remember{
+    val liveTitle = remember {
         mutableStateOf("")
     }
     val imageLive = remember {
@@ -195,7 +194,10 @@ fun StreamContent(detailContent: StatusContent?, onHideButtonClick: () -> Unit) 
         )
     ) {
         item {
-            Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
                 Card(
                     modifier = Modifier.size(400.dp, 200.dp),
                     shape = RoundedCornerShape(8.dp),
@@ -279,56 +281,128 @@ fun StreamContent(detailContent: StatusContent?, onHideButtonClick: () -> Unit) 
                         }
                     }
                 }
-                Text(text = liveTitle.value, fontSize = 18.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(8.dp))
-                Divider(color = Color.Black,modifier = Modifier
-                    .width(300.dp)
-                    .padding(8.dp))
-                if(detailContent!=null){
-                    when(detailContent.status){
+                Text(
+                    text = liveTitle.value,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(8.dp)
+                )
+                Divider(
+                    color = Color.Black, modifier = Modifier
+                        .width(300.dp)
+                        .padding(8.dp)
+                )
+                if (detailContent != null) {
+                    when (detailContent.status) {
                         //온에어
-                        "OPEN"->{
+                        "OPEN" -> {
 //                            var duration = DateCalculater(detailContent.openDate)
 //                            val hours = duration.toHours()
 //                            val minutes = duration.toMinutes() % 60
-                            //val seconds = duration.toSeconds() % 60
-                            Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(4.dp)) {
-                                Text(text = "카테고리", fontWeight = FontWeight.Bold, fontSize = 10.sp)
-                                Text(text = "${detailContent.liveCategoryValue}", fontWeight = FontWeight.Bold, fontSize = 10.sp)
+//                            val seconds = duration.toSeconds() % 60
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(8.dp), horizontalArrangement = Arrangement.SpaceEvenly
+                            ) {
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    modifier = Modifier.padding(4.dp)
+                                ) {
+                                    Text(
+                                        text = "카테고리",
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 10.sp
+                                    )
+                                    Text(
+                                        text = "${detailContent.liveCategoryValue}",
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 15.sp,
+                                        modifier = Modifier.padding(8.dp)
+                                    )
+                                }
+                                VerticalDivider(
+                                    modifier = Modifier
+                                        .height(50.dp)
+                                        .padding(4.dp), color = Color.Black
+                                )
+//                            Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(4.dp)) {
+//                                Text(text = "방송시간", fontWeight = FontWeight.Bold, fontSize = 10.sp)
+//                                Text(text = "$hours:$minutes:$seconds", fontWeight = FontWeight.Bold, fontSize = 10.sp)
+//                            }
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    modifier = Modifier.padding(4.dp)
+                                ) {
+                                    Text(
+                                        text = "현재 시청자",
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 10.sp
+                                    )
+                                    Text(
+                                        text = detailContent.concurrentUserCount.toString(),
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 15.sp,
+                                        modifier = Modifier.padding(8.dp)
+                                    )
+                                }
                             }
-                            Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(4.dp)) {
-                                Text(text = "", fontWeight = FontWeight.Bold, fontSize = 10.sp)
-                            }
-                            Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(4.dp)) {
-                                Text(text = "", fontWeight = FontWeight.Bold, fontSize = 10.sp)
-                            }
-                            Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(4.dp)) {
-                                Text(text = "방송시간", fontWeight = FontWeight.Bold, fontSize = 10.sp)
-                                //Text(text = "$hours:$minutes:$seconds", fontWeight = FontWeight.Bold, fontSize = 10.sp)
-                            }
+
 
                         }
                         //방종상태
-                        "CLOSE"->{
-                            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly){
+                        "CLOSE" -> {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceEvenly
+                            ) {
 //                                val open = detailContent.openDate
 //                                val close = detailContent.closeDate
 //                                val live_time : List<String> = live_Open_Close(open,close)
-                                Column(horizontalAlignment = Alignment.CenterHorizontally,verticalArrangement = Arrangement.Center, modifier = Modifier
-                                    .padding(4.dp)
-                                    .width(100.dp)) {
-                                    Text(text = "카테 고리", fontWeight = FontWeight.Bold, fontSize = 10.sp)
-                                    Text(text = "${detailContent.liveCategoryValue}", fontWeight = FontWeight.Bold, fontSize = 15.sp,modifier = Modifier.padding(4.dp))
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.Center,
+                                    modifier = Modifier
+                                        .padding(4.dp)
+                                        .width(100.dp)
+                                ) {
+                                    Text(
+                                        text = "뱅온 시간",
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 10.sp
+                                    )
+                                    Text(
+                                        text = "${detailContent.liveCategoryValue}",
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 15.sp,
+                                        modifier = Modifier.padding(4.dp)
+                                    )
 //                                    Text(text = live_time.get(0), fontWeight = FontWeight.Bold, fontSize = 15.sp, modifier = Modifier.padding(4.dp))
 //                                    Text(text = live_time.get(1), fontWeight = FontWeight.Bold, fontSize = 15.sp, modifier = Modifier.padding(4.dp))
                                 }
-                                VerticalDivider(modifier = Modifier
-                                    .height(50.dp)
-                                    .padding(4.dp), color = Color.Black)
-                                Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center, modifier = Modifier
-                                    .padding(4.dp)
-                                    .width(100.dp)) {
-                                    Text(text = "태그", fontWeight = FontWeight.Bold, fontSize = 10.sp)
-                                    Text(text = "${detailContent.tags}", fontWeight = FontWeight.Bold, fontSize = 15.sp,modifier = Modifier.padding(4.dp))
+                                VerticalDivider(
+                                    modifier = Modifier
+                                        .height(50.dp)
+                                        .padding(4.dp), color = Color.Black
+                                )
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.Center,
+                                    modifier = Modifier
+                                        .padding(4.dp)
+                                        .width(100.dp)
+                                ) {
+                                    Text(
+                                        text = "뱅종 시간",
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 10.sp
+                                    )
+                                    Text(
+                                        text = "${detailContent.tags}",
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 15.sp,
+                                        modifier = Modifier.padding(4.dp)
+                                    )
 //                                    Text(text = live_time.get(2), fontWeight = FontWeight.Bold, fontSize = 15.sp, modifier = Modifier.padding(4.dp))
 //                                    Text(text = live_time.get(3), fontWeight = FontWeight.Bold, fontSize = 15.sp, modifier = Modifier.padding(4.dp))
                                 }
@@ -336,23 +410,46 @@ fun StreamContent(detailContent: StatusContent?, onHideButtonClick: () -> Unit) 
                         }
                     }
                     //detailContent가 NULL일 때
-                }else{
-                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly){
+                } else {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                    ) {
 
-                        Column(horizontalAlignment = Alignment.CenterHorizontally,verticalArrangement = Arrangement.Center, modifier = Modifier
-                            .padding(4.dp)
-                            .width(100.dp)) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center,
+                            modifier = Modifier
+                                .padding(4.dp)
+                                .width(100.dp)
+                        ) {
                             Text(text = "카테고리", fontWeight = FontWeight.Bold, fontSize = 10.sp)
-                            Text(text = "에러", fontWeight = FontWeight.Bold, fontSize = 15.sp, modifier = Modifier.padding(4.dp))
+                            Text(
+                                text = "에러",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 15.sp,
+                                modifier = Modifier.padding(4.dp)
+                            )
                         }
-                        VerticalDivider(modifier = Modifier
-                            .height(50.dp)
-                            .padding(4.dp), color = Color.Black)
-                        Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center, modifier = Modifier
-                            .padding(4.dp)
-                            .width(100.dp)) {
+                        VerticalDivider(
+                            modifier = Modifier
+                                .height(50.dp)
+                                .padding(4.dp), color = Color.Black
+                        )
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center,
+                            modifier = Modifier
+                                .padding(4.dp)
+                                .width(100.dp)
+                        ) {
                             Text(text = "방송시간", fontWeight = FontWeight.Bold, fontSize = 10.sp)
-                            Text(text = "에러", fontWeight = FontWeight.Bold, fontSize = 15.sp, modifier = Modifier.padding(4.dp))
+                            Text(
+                                text = "에러",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 15.sp,
+                                modifier = Modifier.padding(4.dp)
+                            )
                         }
                     }
                 }
@@ -373,20 +470,21 @@ fun StreamContent(detailContent: StatusContent?, onHideButtonClick: () -> Unit) 
 }
 
 
-fun DateCalculater(live_open:String?) : Duration{
+fun DateCalculater(live_open: String?): Duration {
     val now = LocalDateTime.now()
     val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-    val liveOpenDate = dateFormat.parse(live_open).toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime()
+    val liveOpenDate =
+        dateFormat.parse(live_open).toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime()
     val duration = Duration.between(now, liveOpenDate)
     return duration
 }
 
-fun live_Open_Close(live_open:String?,live_close:String?) : List<String>{
+fun live_Open_Close(live_open: String?, live_close: String?): List<String> {
     val open = live_open?.split(" ")
     val close = live_close?.split(" ")
 
-    val date : MutableList<String> = mutableListOf()
-    if (open != null && close!=null) {
+    val date: MutableList<String> = mutableListOf()
+    if (open != null && close != null) {
         date.add(open[0])
         date.add(open[1])
         date.add(close[0])

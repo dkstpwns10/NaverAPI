@@ -5,7 +5,6 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
 }
-
 val localProperties = Properties()
 val localPropertiesFile = rootProject.file("local.properties")
 if (localPropertiesFile.exists()) {
@@ -25,8 +24,8 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        buildConfigField("String", "Naver_Client_Key", "\"${localProperties.getProperty("NaverClientKey")}\"")
-        buildConfigField("String", "Naver_Secret_Key", "\"${localProperties.getProperty("NaverSecretKey")}\"")
+        buildConfigField("String", "Naver_Client_Key", "\"${localProperties.getProperty("naverClientKey")}\"")
+        buildConfigField("String", "Naver_Secret_Key", "\"${localProperties.getProperty("naverSecretKey")}\"")
 
         vectorDrawables {
             useSupportLibrary = true
@@ -81,6 +80,7 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.viewpager2)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

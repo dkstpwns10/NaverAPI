@@ -44,16 +44,16 @@ import kotlinx.coroutines.CoroutineScope
 
 @OptIn(ExperimentalPagerApi::class, ExperimentalMaterialApi::class)
 @Composable
-fun MainScreen(appbarColor: Color, drawerColor: Color) {
+fun MainScreen(appbarColor: Color, drawerColor: Color,scope: CoroutineScope) {
     val streamViewModel: MainViewModel = viewModel()
     val pagerState = rememberPagerState()
     val scaffoldState = rememberBottomSheetScaffoldState()
 
     BottomSheetScaffold(
         scaffoldState = scaffoldState,
-        sheetPeekHeight = 150.dp, // The height when the sheet is collapsed
+        sheetPeekHeight = 150.dp, // 바텀 시트 접혀있 을 때 높이
         sheetContent = {
-            BottomSheet_StreamView(streamViewModel, scaffoldState)
+            BottomSheet_StreamView(streamViewModel, scaffoldState,scope)
         },
         sheetBackgroundColor = Color.White
     ) {
@@ -179,9 +179,3 @@ fun VerticalDivider(
             .background(color)
     )
 }
-//
-//@Preview
-//@Composable
-//fun MainScreenPreview() {
-//    MainScreen(Color.White, Color.Black)
-//}

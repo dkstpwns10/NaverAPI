@@ -1,57 +1,154 @@
 package com.chzzk.temtem.service
 
-import android.app.Activity
 import android.content.Context
+import android.content.Intent
+import android.util.Log
 import android.widget.Toast
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import com.chzzk.temtem.BuildConfig
 import com.navercorp.nid.NaverIdLoginSDK
 import com.navercorp.nid.oauth.OAuthLoginCallback
+import android.content.SharedPreferences
+import androidx.core.content.ContextCompat.startActivity
+import com.chzzk.temtem.MainActivity
+import com.chzzk.temtem.api.NaverUserProfileResponse
+import com.chzzk.temtem.api.naverApiService
+import com.chzzk.temtem.domain.User
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
-class NaverLogin(private val context: Context) {
-    val isLoggedIn = mutableStateOf(false)
-    val accessToken = mutableStateOf("")
-    val refreshToken = mutableStateOf("")
-    val expiresAt = mutableStateOf("")
-    val tokenType = mutableStateOf("")
-    val state = mutableStateOf("")
-    val errorMessage = mutableStateOf("")
 
-    init {
-        NaverIdLoginSDK.initialize(
-            context, // 네이버 개발자 센터에서 발급받은 Client ID
-            BuildConfig.Naver_Client_Key, // 네이버 개발자 센터에서 발급받은 Client ID
-            BuildConfig.Naver_Secret_Key, // 네이버 개발자 센터에서 발급받은 Client Secret
-            "점례동화" // 앱 이름
-        )
-    }
+class NaverLogin(private val context: Context,val viewModel: MainViewModel) {
+    val sharedPreferences: SharedPreferences = context.getSharedPreferences("MyAppPreferences", Context.MODE_PRIVATE)
+    val editor: SharedPreferences.Editor = sharedPreferences.edit()
 
-    fun login() {
-        val loginCallback = object : OAuthLoginCallback {
+
+
+    fun naverLogin(context: Context, viewModel: MainViewModel) {
+        val client=BuildConfig.Naver_Client_Key
+        val secret=BuildConfig.Naver_Secret_Key
+        val clientName = "점례동화"
+
+        NaverIdLoginSDK.initialize(this.context,client,secret,clientName)
+
+        val oauthLoginCallback = object : OAuthLoginCallback {
             override fun onSuccess() {
-                // 로그인 성공 시 토큰 정보 업데이트
-                accessToken.value = NaverIdLoginSDK.getAccessToken() ?: ""
-                refreshToken.value = NaverIdLoginSDK.getRefreshToken() ?: ""
-                expiresAt.value = NaverIdLoginSDK.getExpiresAt().toString()
-                tokenType.value = NaverIdLoginSDK.getTokenType() ?: ""
-                state.value = NaverIdLoginSDK.getState().toString()
-                isLoggedIn.value = true
+                Log.d("abcdefr", "AccessToken : " + NaverIdLoginSDK.getAccessToken())
+                Log.d("test", "client id : " + client)
+                Log.d("test", "ReFreshToken : " + NaverIdLoginSDK.getRefreshToken())
+                Log.d("test", "Expires : " + NaverIdLoginSDK.getExpiresAt().toString())
+                Log.d("test", "TokenType : " + NaverIdLoginSDK.getTokenType())
+                Log.d("test", "State : " + NaverIdLoginSDK.getState().toString())
+
+                autoLogin(NaverIdLoginSDK.getAccessToken())
+                this@NaverLogin.viewModel.loginState(true)
+                Log.d("loginState", "${this@NaverLogin.viewModel.isLogined.value}")
+
+                editor.putString("NAVER_ACCESS_TOKEN", NaverIdLoginSDK.getAccessToken())
+                editor.apply()
+
+                Toast.makeText(this@NaverLogin.context, "로그인 성공", Toast.LENGTH_SHORT).show()
             }
+
 
             override fun onFailure(httpStatus: Int, message: String) {
-                // 로그인 실패 시 오류 정보 표시
                 val errorCode = NaverIdLoginSDK.getLastErrorCode().code
                 val errorDescription = NaverIdLoginSDK.getLastErrorDescription()
-                errorMessage.value = "errorCode:$errorCode, errorDesc:$errorDescription"
-                Toast.makeText(context, errorMessage.value, Toast.LENGTH_SHORT).show()
+                Log.e("test", "$errorCode $errorDescription")
             }
-
             override fun onError(errorCode: Int, message: String) {
                 onFailure(errorCode, message)
             }
         }
-
-        NaverIdLoginSDK.authenticate(context as Activity, loginCallback)
+        NaverIdLoginSDK.authenticate(this.context, oauthLoginCallback)
     }
+
+    fun autoLogin(token: String?){
+        val accessToken = "Bearer $token"
+        val call = naverApiService.getUserProfile(accessToken)
+        call.enqueue(object : Callback<NaverUserProfileResponse> {
+            override fun onResponse(
+                call: Call<NaverUserProfileResponse>,
+                response: Response<NaverUserProfileResponse>
+            ) {
+                if (response.isSuccessful) {
+                    val userProfile = response.body()?.response
+                    if (userProfile != null) {
+                        // 성공적으로 사용자 정보를 가져왔을 때 처리
+                        Log.d("AutoLogin", "User userProfile: $userProfile")
+                        Log.d("AutoLogin", "User ID: ${userProfile.id}")
+                        Log.d("AutoLogin", "User Email: ${userProfile.email}")
+
+                        userProfile?.let {
+                            val user = User(
+                                email = it.email,
+                                id = it.id
+                            )
+                            viewModel._userState.value = viewModel._userState.value.copy(
+                                data = user
+                            )
+                        }
+                        viewModel.loginState(true)
+                    } else {
+                        Log.e("AutoLogin", "Failed to get user profile: Response body is null")
+                        viewModel.loginState(false)
+                    }
+                } else {
+                    Log.e("AutoLogin", "Failed to get user profile: ${response.errorBody()?.string()}")
+                }
+            }
+
+            override fun onFailure(call: Call<NaverUserProfileResponse>, t: Throwable) {
+                Log.e("AutoLogin", "API call failed: ${t.message}")
+            }
+        })
+    }
+    fun logout(context: Context) {
+        val sharedPreferences: SharedPreferences = context.getSharedPreferences("MyAppPreferences", Context.MODE_PRIVATE)
+        val editor: SharedPreferences.Editor = sharedPreferences.edit()
+
+        val clientId = BuildConfig.Naver_Client_Key
+        val clientSecret = BuildConfig.Naver_Secret_Key
+        val accessToken = sharedPreferences.getString("NAVER_ACCESS_TOKEN", null) ?: return
+
+        val baseUrl = "https://nid.naver.com/oauth2.0/token"
+        val grantType = "delete"
+
+        // 네이버 API를 사용하여 로그아웃 처리
+        val call = naverApiService.logout(
+            url = baseUrl,
+            grantType = grantType,
+            clientId = clientId,
+            clientSecret = clientSecret,
+            accessToken = accessToken
+        )
+        call.enqueue(object : Callback<Void> {
+            override fun onResponse(call: Call<Void>, response: Response<Void>) {
+                if (response.isSuccessful) {
+                    // 성공적으로 로그아웃 처리
+                    Log.d("Logout", "Successfully logged out")
+
+                    // SharedPreferences에서 토큰 및 사용자 정보 삭제
+                    editor.remove("NAVER_ACCESS_TOKEN")
+                    editor.apply()
+
+                    // 로그아웃 후 필요한 다른 처리 (예: 로그인 화면으로 이동)
+                    viewModel.loginState(false)
+                    val intent = Intent(context, MainActivity::class.java).apply {
+                        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    }
+                    context.startActivity(intent)
+                    Toast.makeText(this@NaverLogin.context, "로그아웃 성공", Toast.LENGTH_SHORT).show()
+                } else {
+                    Log.e("Logout", "Failed to logout: ${response.errorBody()?.string()}")
+                }
+
+            }
+
+            override fun onFailure(call: Call<Void>, t: Throwable) {
+                Log.e("Logout", "API call failed: ${t.message}")
+            }
+        })
+    }
+
 }
