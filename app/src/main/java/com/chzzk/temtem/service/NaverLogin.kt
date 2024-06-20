@@ -77,11 +77,13 @@ class NaverLogin(private val context: Context,val viewModel: MainViewModel) {
                         // 성공적으로 사용자 정보를 가져왔을 때 처리
                         Log.d("AutoLogin", "User userProfile: $userProfile")
                         Log.d("AutoLogin", "User ID: ${userProfile.id}")
+                        Log.d("AutoLogin", "User Name: ${userProfile.name}")
                         Log.d("AutoLogin", "User Email: ${userProfile.email}")
 
                         userProfile?.let {
                             val user = User(
                                 email = it.email,
+                                name = it.name,
                                 id = it.id
                             )
                             viewModel._userState.value = viewModel._userState.value.copy(

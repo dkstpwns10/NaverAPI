@@ -25,13 +25,11 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.rememberBottomSheetScaffoldState
-import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -84,29 +82,34 @@ fun topAppBar(
     }
 
     val drawerState = rememberDrawerState(stateViewmodel.getDrawerState)
-
+    val drawerState2 = rememberDrawerState(DrawerValue.Closed)
     val REDIRECT_URI = "http://172.30.1.42:5000/callback"
 
+    if(drawerState2.currentValue == DrawerValue.Open){
+        stateViewmodel.setDrawerState(DrawerValue.Open)
+    }else{
+        stateViewmodel.setDrawerState(DrawerValue.Closed)
+    }
     Log.d("DrawerState", "Appbar Start DrawerState: ${stateViewmodel.getDrawerState}")
+    Log.d("DrawerState", "Appbar Start DrawerState2: ${drawerState2.currentValue}")
     BackOnPressed(context, stateViewmodel)
-    BackHandler(enabled = drawerState.isOpen) {
+    BackHandler(enabled = drawerState2.isOpen) {
         scope.launch {
-            drawerState.close()
-            stateViewmodel.setDrawerState(DrawerValue.Closed)
+            drawerState2.close()
+            //stateViewmodel.setDrawerState(drawerState2.currentValue)
         }
     }
 
     ModalNavigationDrawer(
-        drawerState = drawerState,
+        drawerState = drawerState2,
         drawerContent = {
 
             DrawerContent(onCloseDrawer = {
                 scope.launch {
-                    drawerState.close()
-                    stateViewmodel.setDrawerState(DrawerValue.Closed)
+                    drawerState2.close()
+                    //stateViewmodel.setDrawerState(drawerState2.currentValue)
                 }
             }, viewModel, context)
-
         },
         content = {
             Scaffold(
@@ -135,11 +138,15 @@ fun topAppBar(
                         navigationIcon = {
                             IconButton(onClick = {
                                 scope.launch {
-                                    drawerState.open()
-                                    stateViewmodel.setDrawerState(DrawerValue.Open)
+                                    drawerState2.open()
+                                    //stateViewmodel.setDrawerState(drawerState2.currentValue)
                                     Log.d(
                                         "DrawerState",
                                         "DrawerButtonClicked: ${stateViewmodel.getDrawerState}"
+                                    )
+                                    Log.d(
+                                        "DrawerState",
+                                        "DrawerButtonClicked drawerState2: ${drawerState2.currentValue}"
                                     )
                                 }
                             }) {
@@ -255,16 +262,27 @@ fun DrawerContent(
                         }
                     }
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        viewModel._userState.value.data?.email?.let {
-                            email = viewModel._userState.value.data?.email!!
+                        Spacer(modifier = Modifier.height(30.dp))
+                        viewModel._userState.value.data?.let {
                             Text(
-                                text = email,
-                                fontSize = 16.sp,
+                                text = it.name!!,
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.Bold,
                                 textAlign = TextAlign.Center,
-                                modifier = Modifier.fillMaxWidth()
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(4.dp)
+                            )
+                            Text(
+                                text = it.email!!,
+                                fontSize = 12.sp,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(4.dp)
                             )
                         }
-
+                        Spacer(modifier = Modifier.height(10.dp))
                         Image(painter = painterResource(id = R.drawable.btn_logout),
                             contentDescription = "Logout Button",
                             modifier = Modifier
