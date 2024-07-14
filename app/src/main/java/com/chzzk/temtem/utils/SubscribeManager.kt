@@ -6,7 +6,5 @@ import com.chzzk.temtem.utils.AppDataStore.Companion.dataStore
 import kotlinx.coroutines.flow.first
 
 class SubscribeManager(context: Context) {
-    val data = dataStore.data.first {
 
-    }
 }
